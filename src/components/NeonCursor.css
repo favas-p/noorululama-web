@@ -1,0 +1,56 @@
+/* Hide the default cursor globally */
+body {
+  cursor: none;
+}
+
+/* Container for cursor elements */
+.neon-cursor-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Main cursor dot - bright center */
+.cursor-main {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10001;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Trailing circle - outline */
+.cursor-trail {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 2px solid;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+  z-index: 10000;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Outer glow - subtle aura */
+.cursor-glow {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  filter: blur(8px);
+  transition: background 0.3s ease;
+}
+
+/* Optional: Add cursor interaction styles for clickable elements */
+a, button, input, [data-hover="true"] {
+  cursor: none;
+}
