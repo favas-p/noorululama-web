@@ -1,15 +1,7 @@
-import Link from 'next/link'
-import { Home, ArrowLeft, Search } from 'lucide-react'
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: '404 - Page Not Found',
-  description: 'The page you are looking for could not be found. Return to Noorul Ulama homepage.',
-  robots: {
-    index: false,
-    follow: false,
-  },
-}
+import Link from 'next/link'
+import { Home, ArrowLeft } from 'lucide-react'
 
 export default function NotFound() {
   return (
@@ -30,7 +22,7 @@ export default function NotFound() {
 
         {/* Description */}
         <p className="text-lg sm:text-xl text-gray-400 mb-8 max-w-md mx-auto">
-          Sorry, we couldn't find the page you're looking for. It might have been moved or deleted.
+          Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved or deleted.
         </p>
 
         {/* Arabic Quote */}
@@ -39,7 +31,7 @@ export default function NotFound() {
             إِنَّ مَعَ الْعُسْرِ يُسْرًا
           </p>
           <p className="text-gray-300 text-sm">
-            "Indeed, with hardship comes ease"
+            &ldquo;Indeed, with hardship comes ease&rdquo;
           </p>
           <p className="text-gray-500 text-xs mt-1">Quran 94:6</p>
         </div>

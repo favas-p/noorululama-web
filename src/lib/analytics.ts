@@ -112,7 +112,7 @@ export const trackEvent = {
 }
 
 // Performance monitoring
-export const reportWebVitals = (metric: any) => {
+export const reportWebVitals = (metric: { name: string; value: number; id: string }) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', metric.name, {
       event_category: 'Web Vitals',
@@ -147,7 +147,7 @@ export const plausible = {
     }
   },
 
-  trackEvent: (eventName: string, props?: Record<string, any>) => {
+  trackEvent: (eventName: string, props?: Record<string, string | number | boolean>) => {
     if (typeof window !== 'undefined' && window.plausible) {
       window.plausible(eventName, { props })
     }
@@ -156,7 +156,7 @@ export const plausible = {
 
 declare global {
   interface Window {
-    plausible?: (eventName: string, options?: { props?: Record<string, any> }) => void
+    plausible?: (eventName: string, options?: { props?: Record<string, string | number | boolean> }) => void
   }
 }
 

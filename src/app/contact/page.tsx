@@ -139,7 +139,7 @@ const ContactSection = () => {
           </h2>
           <div className="w-16 sm:w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full mx-auto mb-4 sm:mb-6" />
           <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-            Connect with Noorul Ulama Students Association - We're here to help and answer your questions
+            Connect with Noorul Ulama Students Association - We&apos;re here to help and answer your questions
           </p>
           <div className="flex items-center justify-center gap-2 text-emerald-400">
             <Globe className="w-5 h-5" />

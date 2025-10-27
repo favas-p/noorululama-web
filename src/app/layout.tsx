@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import NeonCursor from "@/components/NeonCursor";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { organizationSchema, websiteSchema } from "@/lib/structured-data";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -162,7 +163,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <GoogleAnalytics />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
         <TooltipProvider delayDuration={0}>
           <NeonCursor />
           {children}
