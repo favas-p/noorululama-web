@@ -225,7 +225,7 @@ const AboutSection = () => {
               <div className="relative bg-white p-4 sm:p-8 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 group">
                 <div className="relative overflow-hidden rounded-2xl">
                   <Image
-                    src="/img/3.webp"
+                    src="/img/4.webp"
                     alt="Jamia Nooriyya Arabiyya Pattikkad"
                     width={600}
                     height={400}
