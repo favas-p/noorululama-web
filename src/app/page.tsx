@@ -40,6 +40,7 @@ export default function Home() {
           <>
             Guided by renowned
             <br className="hidden sm:block" />
+          
             scholars and educators
           </>
         }
