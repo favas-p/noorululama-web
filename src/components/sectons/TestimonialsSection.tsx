@@ -19,7 +19,7 @@ const testimonials = [
   },
   {
     id: 2,
-    name: "Favas Muhammed",
+    name: "Muhammed Favas",
     role: "Student, Literature Wing",
     image: placeholderImage,
     quote: "Being part of the Literature Wing has unleashed my creative potential. The supportive environment and excellent guidance have helped me publish my first collection of poems.",
