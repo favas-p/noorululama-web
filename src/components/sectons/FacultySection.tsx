@@ -9,13 +9,13 @@ import { ArrowRight } from 'lucide-react'
 // Faculty Data
 const faculty = [
     { name: 'Ali Kutty Musliyar', role: 'Principal', image: '/usd-img/ali-kutty-usthad.webp' },
-    { name: 'Bappu Musliyar', role: 'Vice Principal', image: '/usd-img/bappu-usthad.webp' },
-    { name: 'Haithami Usthad', role: 'Senior Professor', image: '/usd-img/haithami-usthad.webp' },
-    { name: 'Kottumala Usthad', role: 'Dean of Studies', image: '/usd-img/kottumala-usthad.webp' },
-    { name: 'OT Usthad', role: 'Head of Department', image: '/usd-img/ot-usthad.webp' },
-    { name: 'Koomanna Usthad', role: 'Professor', image: '/usd-img/koomanna-usthad.webp' },
-    { name: 'Ziyaudheen Usthad', role: 'Professor', image: '/usd-img/ziyaudheen-usthad.webp' },
-    { name: 'Alavi Usthad', role: 'Professor', image: '/usd-img/alavi-usthad.webp' },
+    { name: 'Kottumala Usthad', role: 'Vice Principal', image: '/usd-img/kottumala-usthad.webp' },
+    { name: 'Abdul Latheef Faizy', role: 'Professor', image: '/usd-img/bappu-usthad.webp' },
+    { name: 'Hamza Faizy Al Haithami', role: 'Professor', image: '/usd-img/haithami-usthad.webp' },
+    { name: 'Alavi Faizy', role: 'Professor', image: '/usd-img/alavi-usthad.webp' },
+    { name: 'Ziyaudheen Faizy', role: 'Professor', image: '/usd-img/ziyaudheen-usthad.webp' },
+    { name: 'Ot Musthafa Faizy', role: 'Professor', image: '/usd-img/ot-usthad.webp' },
+    { name: 'Muhammed Ali Shihab Faizy', role: 'Professor', image: '/usd-img/koomanna-usthad.webp' },
 ];
 
 const FacultySection = () => {
