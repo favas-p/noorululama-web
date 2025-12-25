@@ -7,8 +7,10 @@ import {
   ChevronLeft, ChevronRight, Eye, Filter, X, Mail, Phone,
   Award, Target, Calendar, MapPin, TrendingUp, Sparkles
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const SubWingsSection = () => {
+  const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
   const [activeWing, setActiveWing] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -863,6 +865,15 @@ const SubWingsSection = () => {
                 <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl">
                   {wing.fullDescription}
                 </p>
+                {wing.title === "Al-Muneer" && (
+                  <button
+                    onClick={() => router.push('/al-muneer-booking')}
+                    className="mt-6 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2 group"
+                  >
+                    <span>Pre-booking Started</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1201,6 +1212,9 @@ const SubWingsSection = () => {
       {selectedWing && (
         <WingDetailModal wing={selectedWing} onClose={() => setSelectedWing(null)} />
       )}
+
+      {/* Booking Modal */}
+
 
       <style jsx>{`
         @keyframes fadeIn {
