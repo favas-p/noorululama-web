@@ -13,6 +13,7 @@ interface BookingData {
     post: string
     pinCode: string
     copies: number
+    paymentMethod: 'online' | 'offline' | ''
 }
 
 interface Props {
@@ -30,7 +31,8 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
         address: '',
         post: '',
         pinCode: '',
-        copies: 1
+        copies: 1,
+        paymentMethod: ''
     })
 
     const PRICE_PER_COPY = 250
@@ -51,7 +53,8 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
     }
 
     const handleNext = () => {
-        if (step === 2) {
+        if (step === 3) {
+            if (!formData.paymentMethod) return
             submitForm()
         } else {
             setStep(prev => prev + 1)
@@ -81,7 +84,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
             })
 
             // Since we can't check response.ok in no-cors, we proceed to next step
-            setStep(3)
+            setStep(4)
         } catch (error) {
             console.error('Submission error:', error)
             alert('Failed to submit booking. Please try again.')
@@ -117,7 +120,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                 <div className="p-6 overflow-y-auto flex-1">
                     {/* Progress Indicator */}
                     <div className="flex items-center justify-center mb-8 gap-2">
-                        {[1, 2, 3].map((s) => (
+                        {[1, 2, 3, 4].map((s) => (
                             <div key={s} className="flex items-center">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= s
                                     ? 'bg-emerald-600 text-white'
@@ -125,7 +128,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                     }`}>
                                     {step > s ? <Check className="w-4 h-4" /> : s}
                                 </div>
-                                {s < 3 && (
+                                {s < 4 && (
                                     <div className={`w-12 h-1 rounded-full mx-2 ${step > s ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-800'
                                         }`} />
                                 )}
@@ -280,27 +283,96 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                             </div>
                         )}
 
-                        {/* Step 3: Payment */}
+                        {/* Step 3: Payment Method */}
                         {step === 3 && (
                             <div className="space-y-6 animate-fadeIn text-center">
-                                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 inline-block">
-                                    <h5 className="font-bold text-slate-800 dark:text-white mb-4">Scan to Pay</h5>
-                                    {/* QR Code Placeholder - Replace with actual image logic */}
-                                    <div className="w-64 h-64 bg-white p-2 rounded-xl shadow-md mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                                        <img
-                                            src={getQrCodeImage()}
-                                            alt={`QR Code for ${formData.copies} copies`}
-                                            className="w-full h-full object-contain"
-                                            onError={(e) => {
-                                                // Fallback if image not found
-                                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/250x250?text=QR+Code+Not+Found'
-                                            }}
-                                        />
-                                    </div>
-                                    <p className="text-emerald-600 font-bold text-xl">
-                                        Amount: ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
-                                    </p>
+                                <h4 className="text-xl font-bold text-slate-800 dark:text-white mb-6">
+                                    Choose Payment Method
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'online' }))}
+                                        className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${formData.paymentMethod === 'online'
+                                            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                            : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                            }`}
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+                                        </div>
+                                        <div className="text-left">
+                                            <h5 className="font-bold text-slate-800 dark:text-white">Online Payment</h5>
+                                            <p className="text-sm text-slate-500">Google Pay, PhonePe, UPI</p>
+                                        </div>
+                                        {formData.paymentMethod === 'online' && (
+                                            <div className="absolute top-2 right-2 text-emerald-500">
+                                                <Check className="w-5 h-5" />
+                                            </div>
+                                        )}
+                                    </button>
+
+                                    <button
+                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'offline' }))}
+                                        className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${formData.paymentMethod === 'offline'
+                                            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                            : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                            }`}
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                                        </div>
+                                        <div className="text-left">
+                                            <h5 className="font-bold text-slate-800 dark:text-white">Offline Payment</h5>
+                                            <p className="text-sm text-slate-500">Cash, Direct Transfer</p>
+                                        </div>
+                                        {formData.paymentMethod === 'offline' && (
+                                            <div className="absolute top-2 right-2 text-emerald-500">
+                                                <Check className="w-5 h-5" />
+                                            </div>
+                                        )}
+                                    </button>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Step 4: Payment Details */}
+                        {step === 4 && (
+                            <div className="space-y-6 animate-fadeIn text-center">
+                                {formData.paymentMethod === 'online' ? (
+                                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 inline-block">
+                                        <h5 className="font-bold text-slate-800 dark:text-white mb-4">Scan to Pay</h5>
+                                        {/* QR Code Placeholder - Replace with actual image logic */}
+                                        <div className="w-64 h-64 bg-white p-2 rounded-xl shadow-md mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                                            <img
+                                                src={getQrCodeImage()}
+                                                alt={`QR Code for ${formData.copies} copies`}
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    // Fallback if image not found
+                                                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/250x250?text=QR+Code+Not+Found'
+                                                }}
+                                            />
+                                        </div>
+                                        <p className="text-emerald-600 font-bold text-xl">
+                                            Amount: ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 inline-block w-full max-w-md">
+                                        <h5 className="font-bold text-slate-800 dark:text-white mb-4 text-xl">Offline Payment Instructions</h5>
+                                        <div className="text-left space-y-4">
+                                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
+                                                <p className="font-semibold text-slate-700 dark:text-slate-300">Option 1: Cash Payment</p>
+                                                <p className="text-sm text-slate-500 mt-1">Please hand over the total amount of <span className="font-bold text-emerald-600">₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}</span> to the office or designated collection agent.</p>
+                                            </div>
+
+                                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
+                                                <p className="font-semibold text-slate-700 dark:text-slate-300">Option 2: Bank Transfer</p>
+                                                <p className="text-sm text-slate-500 mt-1">You can transfer the amount to the official bank account. Contact us for account details.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-4">
                                     <p className="text-slate-600 dark:text-slate-300">
@@ -339,17 +411,17 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                         </button>
                     )}
 
-                    {step < 3 ? (
+                    {step < 4 ? (
                         <button
                             onClick={handleNext}
-                            disabled={loading || (step === 2 && !formData.name)} // Basic validation check
+                            disabled={loading || (step === 2 && !formData.name) || (step === 3 && !formData.paymentMethod)} // Validation checks
                             className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-all flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <span>Submitting...</span>
                             ) : (
                                 <>
-                                    {step === 2 ? 'Submit Booking' : 'Next'}
+                                    {step === 3 ? 'Submit Booking' : 'Next'}
                                     <ChevronRight className="w-4 h-4" />
                                 </>
                             )}

@@ -24,7 +24,8 @@ function doPost(e) {
     data.post,
     data.pinCode,
     data.copies,
-    data.copies * 250 // Total Price
+    data.copies * 250, // Total Price
+    data.paymentMethod
   ]);
   
   // Return success response with CORS headers
