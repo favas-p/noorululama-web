@@ -16,6 +16,7 @@ interface BookingData {
     pinCode: string
     copies: number
     paymentMethod: 'online' | 'offline' | ''
+    deliveryMethod?: 'postal' | 'pickup'
     bookingId?: string
 }
 
@@ -32,11 +33,17 @@ const AlMuneerBookingPage = () => {
         pinCode: '',
         copies: 1,
         paymentMethod: '',
+        deliveryMethod: undefined,
         bookingId: ''
     })
     const receiptRef = useRef<HTMLDivElement>(null)
 
     const PRICE_PER_COPY = 300
+    const DELIVERY_CHARGE = 60
+
+    // Dynamic total calculation
+    const totalAmount = formData.copies * PRICE_PER_COPY +
+        (formData.paymentMethod === 'online' && formData.deliveryMethod === 'postal' ? DELIVERY_CHARGE : 0)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -55,6 +62,11 @@ const AlMuneerBookingPage = () => {
 
     const handleNext = () => {
         if (step === 4) {
+            // Validation for Step 3 (Payment & Delivery)
+            if (formData.paymentMethod === 'online' && !formData.deliveryMethod) {
+                alert("Please select a delivery method")
+                return
+            }
             submitForm()
         } else {
             setStep(prev => prev + 1)
@@ -77,7 +89,7 @@ const AlMuneerBookingPage = () => {
 
             // Generate Booking ID: ALM-XXXXXX
             const bookingId = `ALM-${Math.floor(100000 + Math.random() * 900000)}`
-            const finalData = { ...formData, bookingId }
+            const finalData = { ...formData, bookingId, totalAmount }
             setFormData(prev => ({ ...prev, bookingId }))
 
             await fetch(GOOGLE_SCRIPT_URL, {
@@ -144,17 +156,17 @@ const AlMuneerBookingPage = () => {
                 {/* content */}
                 <div className="p-6 md:p-8">
                     {/* Progress Indicator */}
-                    <div className="flex items-center justify-center mb-10 gap-2">
+                    <div className="flex items-center justify-center mb-6 md:mb-10">
                         {[1, 2, 3, 4].map((s) => (
                             <div key={s} className="flex items-center">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${step >= s
+                                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold transition-all duration-300 ${step >= s
                                     ? 'bg-emerald-600 text-white shadow-lg scale-110'
                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700'
                                     }`}>
-                                    {step > s ? <Check className="w-5 h-5" /> : s}
+                                    {step > s ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : s}
                                 </div>
                                 {s < 4 && (
-                                    <div className={`w-16 h-1 rounded-full mx-3 transition-colors duration-300 ${step > s ? 'bg-emerald-600' : 'bg-slate-100 dark:bg-slate-800'
+                                    <div className={`w-8 md:w-16 h-1 rounded-full mx-1 md:mx-3 transition-colors duration-300 ${step > s ? 'bg-emerald-600' : 'bg-slate-100 dark:bg-slate-800'
                                         }`} />
                                 )}
                             </div>
@@ -326,7 +338,7 @@ const AlMuneerBookingPage = () => {
                                         <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
                                             <span className="text-slate-600 dark:text-slate-400 font-medium">Total Amount</span>
                                             <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                                                ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
+                                                ₹{totalAmount.toLocaleString()}
                                             </span>
                                         </div>
                                     </div>
@@ -363,7 +375,7 @@ const AlMuneerBookingPage = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'offline' }))}
+                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'offline', deliveryMethod: undefined }))}
                                         className={`p-8 rounded-2xl border-2 transition-all flex flex-col items-center gap-4 group ${formData.paymentMethod === 'offline'
                                             ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 ring-4 ring-emerald-500/10'
                                             : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md'
@@ -383,6 +395,89 @@ const AlMuneerBookingPage = () => {
                                         )}
                                     </button>
                                 </div>
+
+                                {formData.paymentMethod === 'online' && (
+                                    <div className="animate-fadeIn mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+                                        <h4 className="text-lg font-bold text-slate-800 dark:text-white mb-6 text-center">
+                                            Choose Delivery Method
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                            <button
+                                                onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'postal' }))}
+                                                className={`p-6 rounded-xl border-2 transition-all flex items-center gap-4 ${formData.deliveryMethod === 'postal'
+                                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800 bg-white dark:bg-slate-900'
+                                                    }`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${formData.deliveryMethod === 'postal' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                                                </div>
+                                                <div className="text-left flex-1">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <h5 className="font-bold text-slate-800 dark:text-white">Postal Delivery</h5>
+                                                        <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">+₹{DELIVERY_CHARGE}</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-500">Delivered to your address via Post</p>
+                                                </div>
+                                                {formData.deliveryMethod === 'postal' && <Check className="w-5 h-5 text-emerald-500" />}
+                                            </button>
+
+                                            <button
+                                                onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'pickup' }))}
+                                                className={`p-6 rounded-xl border-2 transition-all flex items-center gap-4 ${formData.deliveryMethod === 'pickup'
+                                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800 bg-white dark:bg-slate-900'
+                                                    }`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${formData.deliveryMethod === 'pickup' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                                </div>
+                                                <div className="text-left flex-1">
+                                                    <h5 className="font-bold text-slate-800 dark:text-white">Direct Pickup</h5>
+                                                    <p className="text-sm text-slate-500">Collect from Al-Muneer office</p>
+                                                </div>
+                                                {formData.deliveryMethod === 'pickup' && <Check className="w-5 h-5 text-emerald-500" />}
+                                            </button>
+                                        </div>
+
+                                        <div className="mt-8 max-w-sm mx-auto bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-slate-500">Copies ({formData.copies})</span>
+                                                <span className="font-medium">₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}</span>
+                                            </div>
+                                            {formData.deliveryMethod === 'postal' && (
+                                                <div className="flex justify-between items-center mb-2 text-slate-500">
+                                                    <span>Delivery Charge</span>
+                                                    <span className="font-medium">₹{DELIVERY_CHARGE}</span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700 mt-2">
+                                                <span className="font-bold text-lg text-slate-800 dark:text-white">Total Payable</span>
+                                                <span className="font-bold text-2xl text-emerald-600">₹{totalAmount.toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                {formData.paymentMethod === 'offline' && (
+                                    <div className="animate-fadeIn mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+                                        <div className="mt-8 max-w-sm mx-auto bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-slate-500">Copies ({formData.copies})</span>
+                                                <span className="font-medium">₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}</span>
+                                            </div>
+                                            {formData.deliveryMethod === 'postal' && (
+                                                <div className="flex justify-between items-center mb-2 text-slate-500">
+                                                    <span>Delivery Charge</span>
+                                                    <span className="font-medium">₹{DELIVERY_CHARGE}</span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700 mt-2">
+                                                <span className="font-bold text-lg text-slate-800 dark:text-white">Total Payable</span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 mt-1">Please hand over the total amount of <span className="font-bold text-emerald-600">₹{totalAmount.toLocaleString()}</span> to the office or designated collection agent.</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -390,11 +485,11 @@ const AlMuneerBookingPage = () => {
                         {step === 4 && (
                             <div className="space-y-8 animate-fadeIn text-center py-4">
                                 {formData.paymentMethod === 'online' ? (
-                                    <div className="space-y-8 animate-fadeIn text-center py-4">
-                                        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 inline-block max-w-sm w-full mx-auto relative overflow-hidden">
+                                    <div className="space-y-6 animate-fadeIn text-center py-2 md:py-4">
+                                        <div className="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700 inline-block max-w-sm w-full mx-auto relative overflow-hidden">
                                             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
-                                            <h5 className="font-bold text-2xl text-slate-800 dark:text-white mb-6">Scan to Pay</h5>
-                                            <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl mb-6">
+                                            <h5 className="font-bold text-xl md:text-2xl text-slate-800 dark:text-white mb-4 md:mb-6">Scan to Pay</h5>
+                                            <div className="bg-slate-100 dark:bg-slate-900 p-3 md:p-4 rounded-2xl mb-4 md:mb-6">
                                                 <div className="aspect-square bg-white rounded-xl flex items-center justify-center overflow-hidden">
                                                     <img
                                                         src={getQrCodeImage()}
@@ -407,19 +502,24 @@ const AlMuneerBookingPage = () => {
                                                 </div>
                                             </div>
                                             <a
-                                                href={`upi://pay?pa=anasmuhammed954420@oksbi&pn=AlMuneer&cu=INR&am=${formData.copies * PRICE_PER_COPY}`}
-                                                className="block text-emerald-600 font-medium mb-6 hover:underline break-all"
+                                                href={`upi://pay?pa=anasmuhammed954420@oksbi&pn=AlMuneer&cu=INR&am=${totalAmount}`}
+                                                className="block text-emerald-600 font-medium mb-4 md:mb-6 hover:underline break-all text-sm md:text-base"
                                             >
                                                 anasmuhammed954420@oksbi
                                             </a>
                                             <div className="text-slate-500 text-sm mb-1">Total Amount</div>
-                                            <div className="text-4xl font-black text-emerald-600 mb-2">
-                                                ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
+                                            <div className="text-3xl md:text-4xl font-black text-emerald-600 mb-2">
+                                                ₹{totalAmount.toLocaleString()}
                                             </div>
+                                            {formData.deliveryMethod === 'postal' && (
+                                                <div className="text-xs md:text-sm text-slate-500">
+                                                    (Includes ₹{DELIVERY_CHARGE} Delivery Charge)
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <div className="space-y-6 max-w-md mx-auto">
-                                            <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/20 text-amber-800 dark:text-amber-200 text-sm">
+                                        <div className="space-y-4 md:space-y-6 max-w-md mx-auto">
+                                            <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/20 text-amber-800 dark:text-amber-200 text-xs md:text-sm text-left md:text-center">
                                                 Important: After making the payment, please take a screenshot and send it to our official WhatsApp identifier for verification.
                                             </div>
 
@@ -427,9 +527,9 @@ const AlMuneerBookingPage = () => {
                                                 href="https://wa.me/9037150678"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 group"
+                                                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-2xl font-bold text-base md:text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 group"
                                             >
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.6.35 1.095.541 1.749.541 3.181 0 5.767-2.587 5.767-5.766.001-3.182-2.585-5.768-5.72-5.728zM12 4.8c4.01 0 7.26 3.2 7.26 7.141 0 3.94-3.25 7.141-7.26 7.141-1.04 0-2.33-.21-3.32-.69l-4.5 1.25 1.25-4.5c-.58-1.09-.95-2.28-.95-3.2C4.74 8 7.99 4.8 12 4.8zM17.47 14.28c-.2-.1-1.18-.58-1.36-.65-.18-.08-.31-.12-.44.1-.13.22-.51.65-.63.79-.12.13-.25.15-.45.05-.2-.1-.85-.31-1.62-1-.6-.54-1-1.2-1.12-1.41-.12-.2-.01-.31.09-.4.08-.09.19-.24.28-.35.09-.11.12-.19.18-.31.06-.12.03-.23-.01-.32-.04-.09-.44-1.06-.6-1.45-.16-.39-.32-.33-.44-.34l-.38-.01c-.13 0-.34.05-.52.25-.18.2-1.04.69-1.04 1.7 0 1.01.73 1.99.83 2.13.1.14 1.44 2.19 3.49 3.08 1.48.64 1.78.51 2.13.48.35-.03 1.18-.48 1.34-.95.16-.47.16-.88.11-.95-.05-.08-.18-.12-.38-.22z" /></svg>
+                                                <svg viewBox="0 0 24 24" className="w-6 h-6 md:w-8 md:h-8 fill-current"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.6.35 1.095.541 1.749.541 3.181 0 5.767-2.587 5.767-5.766.001-3.182-2.585-5.768-5.72-5.728zM12 4.8c4.01 0 7.26 3.2 7.26 7.141 0 3.94-3.25 7.141-7.26 7.141-1.04 0-2.33-.21-3.32-.69l-4.5 1.25 1.25-4.5c-.58-1.09-.95-2.28-.95-3.2C4.74 8 7.99 4.8 12 4.8zM17.47 14.28c-.2-.1-1.18-.58-1.36-.65-.18-.08-.31-.12-.44.1-.13.22-.51.65-.63.79-.12.13-.25.15-.45.05-.2-.1-.85-.31-1.62-1-.6-.54-1-1.2-1.12-1.41-.12-.2-.01-.31.09-.4.08-.09.19-.24.28-.35.09-.11.12-.19.18-.31.06-.12.03-.23-.01-.32-.04-.09-.44-1.06-.6-1.45-.16-.39-.32-.33-.44-.34l-.38-.01c-.13 0-.34.05-.52.25-.18.2-1.04.69-1.04 1.7 0 1.01.73 1.99.83 2.13.1.14 1.44 2.19 3.49 3.08 1.48.64 1.78.51 2.13.48.35-.03 1.18-.48 1.34-.95.16-.47.16-.88.11-.95-.05-.08-.18-.12-.38-.22z" /></svg>
                                                 Share Payment Screenshot
                                                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                             </a>
@@ -519,13 +619,13 @@ const AlMuneerBookingPage = () => {
                                             </div>
                                             <div>
                                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Amount</div>
-                                                <div className="font-bold text-emerald-600">₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}</div>
+                                                <div className="font-bold text-emerald-600">₹{totalAmount.toLocaleString()}</div>
                                             </div>
                                             <div className="col-span-2">
-                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Payment Method</div>
-                                                <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                                                    <span className={`w-2 h-2 rounded-full ${formData.paymentMethod === 'online' ? 'bg-emerald-500' : 'bg-blue-500'}`} />
-                                                    {formData.paymentMethod === 'online' ? 'Online Payment' : 'Offline Payment'}
+                                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Payment & Delivery</div>
+                                                <div className="font-semibold text-slate-800 dark:text-white">
+                                                    {formData.paymentMethod === 'online' ? 'Online' : 'Offline'}
+                                                    {formData.deliveryMethod && ` / ${formData.deliveryMethod === 'postal' ? 'Postal' : 'Pickup'}`}
                                                 </div>
                                             </div>
                                         </div>
@@ -673,7 +773,7 @@ const AlMuneerBookingPage = () => {
                                                         color: '#34d399'
                                                     }}>Total Paid Amount</div>
                                                     <div style={{ fontSize: '36px', fontWeight: '900', lineHeight: 1 }}>
-                                                        ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
+                                                        ₹{totalAmount.toLocaleString()}
                                                     </div>
                                                     <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '4px' }}>
                                                         {formData.copies} Copy @ ₹{PRICE_PER_COPY}
@@ -698,6 +798,7 @@ const AlMuneerBookingPage = () => {
                                                         display: 'inline-block'
                                                     }}>
                                                         {formData.paymentMethod === 'online' ? 'ONLINE' : 'OFFLINE'}
+                                                        {formData.deliveryMethod && ` - ${formData.deliveryMethod.toUpperCase()}`}
                                                     </div>
                                                 </div>
                                             </div>
@@ -743,8 +844,8 @@ const AlMuneerBookingPage = () => {
                     {step < 5 ? (
                         <button
                             onClick={handleNext}
-                            disabled={loading || (step === 2 && !formData.name) || (step === 3 && !formData.paymentMethod)}
-                            className="px-10 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ml-auto"
+                            disabled={loading || (step === 2 && !formData.name) || (step === 3 && (!formData.paymentMethod || (formData.paymentMethod === 'online' && !formData.deliveryMethod)))}
+                            className="px-6 py-3 md:px-10 md:py-3 text-sm md:text-base rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ml-auto"
                         >
                             {loading ? (
                                 <span>Processing...</span>

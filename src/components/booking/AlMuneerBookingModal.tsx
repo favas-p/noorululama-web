@@ -14,6 +14,7 @@ interface BookingData {
     pinCode: string
     copies: number
     paymentMethod: 'online' | 'offline' | ''
+    deliveryMethod?: 'postal' | 'pickup'
 }
 
 interface Props {
@@ -32,10 +33,15 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
         post: '',
         pinCode: '',
         copies: 1,
-        paymentMethod: ''
+        paymentMethod: '',
+        deliveryMethod: undefined
     })
 
     const PRICE_PER_COPY = 250
+    const DELIVERY_CHARGE = 60
+
+    const totalAmount = formData.copies * PRICE_PER_COPY +
+        (formData.paymentMethod === 'online' && formData.deliveryMethod === 'postal' ? DELIVERY_CHARGE : 0)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -55,6 +61,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
     const handleNext = () => {
         if (step === 3) {
             if (!formData.paymentMethod) return
+            if (formData.paymentMethod === 'online' && !formData.deliveryMethod) return
             submitForm()
         } else {
             setStep(prev => prev + 1)
@@ -292,7 +299,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <button
-                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'online' }))}
+                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'online', deliveryMethod: undefined }))}
                                         className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${formData.paymentMethod === 'online'
                                             ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
                                             : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
@@ -313,7 +320,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                     </button>
 
                                     <button
-                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'offline' }))}
+                                        onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'offline', deliveryMethod: undefined }))}
                                         className={`p-6 rounded-xl border-2 transition-all flex flex-col items-center gap-3 ${formData.paymentMethod === 'offline'
                                             ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
                                             : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
@@ -333,6 +340,60 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                         )}
                                     </button>
                                 </div>
+
+                                {formData.paymentMethod === 'online' && (
+                                    <div className="animate-fadeIn mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                                        <h4 className="text-lg font-bold text-slate-800 dark:text-white mb-4">
+                                            Choose Delivery Method
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <button
+                                                onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'postal' }))}
+                                                className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${formData.deliveryMethod === 'postal'
+                                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${formData.deliveryMethod === 'postal' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                                                </div>
+                                                <div className="text-left flex-1">
+                                                    <div className="flex justify-between items-center">
+                                                        <h5 className="font-bold text-slate-800 dark:text-white">Postal Delivery</h5>
+                                                        <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">+₹{DELIVERY_CHARGE}</span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-500">Delivered to your address</p>
+                                                </div>
+                                                {formData.deliveryMethod === 'postal' && <Check className="w-5 h-5 text-emerald-500" />}
+                                            </button>
+
+                                            <button
+                                                onClick={() => setFormData(prev => ({ ...prev, deliveryMethod: 'pickup' }))}
+                                                className={`p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${formData.deliveryMethod === 'pickup'
+                                                    ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${formData.deliveryMethod === 'pickup' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                                </div>
+                                                <div className="text-left flex-1">
+                                                    <h5 className="font-bold text-slate-800 dark:text-white">Direct Pickup</h5>
+                                                    <p className="text-sm text-slate-500">Collect from office</p>
+                                                </div>
+                                                {formData.deliveryMethod === 'pickup' && <Check className="w-5 h-5 text-emerald-500" />}
+                                            </button>
+                                        </div>
+                                        <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-slate-600 dark:text-slate-400">Total Payable</span>
+                                                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                                    ₹{totalAmount.toLocaleString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -355,8 +416,13 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                             />
                                         </div>
                                         <p className="text-emerald-600 font-bold text-xl">
-                                            Amount: ₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}
+                                            Amount: ₹{totalAmount.toLocaleString()}
                                         </p>
+                                        {formData.deliveryMethod === 'postal' && (
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                (Includes ₹{DELIVERY_CHARGE} delivery charge)
+                                            </p>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 inline-block w-full max-w-md">
@@ -364,7 +430,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                                         <div className="text-left space-y-4">
                                             <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
                                                 <p className="font-semibold text-slate-700 dark:text-slate-300">Option 1: Cash Payment</p>
-                                                <p className="text-sm text-slate-500 mt-1">Please hand over the total amount of <span className="font-bold text-emerald-600">₹{(formData.copies * PRICE_PER_COPY).toLocaleString()}</span> to the office or designated collection agent.</p>
+                                                <p className="text-sm text-slate-500 mt-1">Please hand over the total amount of <span className="font-bold text-emerald-600">₹{totalAmount.toLocaleString()}</span> to the office or designated collection agent.</p>
                                             </div>
 
                                             <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
@@ -415,7 +481,7 @@ const AlMuneerBookingModal = ({ onClose }: Props) => {
                     {step < 4 ? (
                         <button
                             onClick={handleNext}
-                            disabled={loading || (step === 2 && !formData.name) || (step === 3 && !formData.paymentMethod)} // Validation checks
+                            disabled={loading || (step === 2 && !formData.name) || (step === 3 && (!formData.paymentMethod || (formData.paymentMethod === 'online' && !formData.deliveryMethod)))} // Validation checks
                             className="px-6 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-all flex items-center gap-2 ml-auto disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (

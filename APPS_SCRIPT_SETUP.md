@@ -30,8 +30,9 @@ function doPost(e) {
     data.post,
     data.pinCode,
     data.copies,
-    data.copies * 300, // Total Price
-    data.paymentMethod
+    data.totalAmount || (data.copies * 300), // Total Price (Use sent amount or fallback)
+    data.paymentMethod,
+    data.deliveryMethod || '' // Delivery Method
   ]);
   
   // Send Email Notification
@@ -57,8 +58,11 @@ function sendEmail(data, timestamp) {
   body += "Phone: " + data.phone + "\n";
   body += "Place: " + data.place + "\n";
   body += "Copies: " + data.copies + "\n";
-  body += "Total Amount: ₹" + (data.copies * 300) + "\n";
+  body += "Total Amount: ₹" + (data.totalAmount || (data.copies * 300)) + "\n";
   body += "Payment Method: " + data.paymentMethod + "\n";
+  if (data.deliveryMethod) {
+    body += "Delivery Method: " + data.deliveryMethod.toUpperCase() + "\n";
+  }
   
   MailApp.sendEmail({
     to: NOTIFICATION_EMAIL,
