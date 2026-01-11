@@ -66,13 +66,13 @@ export default function BannerSection() {
                         />
 
                         {(banners[currentIndex].title || banners[currentIndex].link) && (
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-12">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
                                 {banners[currentIndex].title && (
                                     <motion.h3
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-2xl md:text-4xl font-bold text-white mb-4"
+                                        className="text-lg md:text-4xl font-bold text-white mb-2 md:mb-4"
                                     >
                                         {banners[currentIndex].title}
                                     </motion.h3>
@@ -85,7 +85,7 @@ export default function BannerSection() {
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.3 }}
-                                        className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-full font-medium transition-all w-fit group"
+                                        className="inline-flex items-center gap-1.5 md:gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 md:px-6 md:py-2.5 rounded-full text-sm md:text-base font-medium transition-all w-fit group"
                                     >
                                         Explore More
                                         <ExternalLink className="w-4 h-4" />
