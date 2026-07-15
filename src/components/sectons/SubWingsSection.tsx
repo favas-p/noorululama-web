@@ -9,17 +9,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-const SubWingsSection = () => {
-  const router = useRouter()
-  const [isVisible, setIsVisible] = useState(false)
-  const [activeWing, setActiveWing] = useState(0)
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [currentPage, setCurrentPage] = useState(0)
-  const [selectedWing, setSelectedWing] = useState<any>(null)
-  const sectionRef = useRef(null)
-  const itemsPerPage = 6
-
-  const subWings = [
+const STATIC_SUB_WINGS = [
     {
       icon: <Theater className="w-6 h-6" />,
       title: "Samajam",
@@ -719,21 +709,69 @@ const SubWingsSection = () => {
       established: "2013",
       totalMembers: 30
     },
+  ];
 
-  ]
+  const SubWingsSection = () => {
+    const router = useRouter();
+    const [isVisible, setIsVisible] = useState(false);
+    const [activeWing, setActiveWing] = useState(0);
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [selectedWing, setSelectedWing] = useState<any>(null);
+    const sectionRef = useRef(null);
+    const itemsPerPage = 6;
 
-  const categories = [
-    { id: 'all', label: 'All Wings', icon: <Star className="w-4 h-4" /> },
-    { id: 'academic', label: 'Academic', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'spiritual', label: 'Spiritual', icon: <Heart className="w-4 h-4" /> },
-    { id: 'cultural', label: 'Cultural', icon: <Theater className="w-4 h-4" /> },
-    { id: 'media', label: 'Media', icon: <Video className="w-4 h-4" /> },
-    { id: 'welfare', label: 'Welfare', icon: <HandHeart className="w-4 h-4" /> }
-  ]
+    const [subWings, setSubWings] = useState(STATIC_SUB_WINGS);
 
-  const filteredWings = selectedCategory === 'all'
-    ? subWings
-    : subWings.filter(wing => wing.category === selectedCategory)
+    useEffect(() => {
+      const loadDynamicLeaders = async () => {
+        try {
+          const res = await fetch('/api/subwing-leaders');
+          const json = await res.json();
+          if (json.success && json.data) {
+            const leadersMap: Record<string, any> = {};
+            json.data.forEach((item: any) => {
+              leadersMap[item.subWingTitle] = item;
+            });
+
+            const updatedWings = STATIC_SUB_WINGS.map(wing => {
+              const dynamicLeaders = leadersMap[wing.title];
+              if (dynamicLeaders) {
+                return {
+                  ...wing,
+                  chairman: {
+                    ...wing.chairman,
+                    ...dynamicLeaders.chairman
+                  },
+                  convener: {
+                    ...wing.convener,
+                    ...dynamicLeaders.convener
+                  }
+                };
+              }
+              return wing;
+            });
+            setSubWings(updatedWings);
+          }
+        } catch (err) {
+          console.error("Failed to load dynamic subwing leaders:", err);
+        }
+      };
+      loadDynamicLeaders();
+    }, []);
+
+    const categories = [
+      { id: 'all', label: 'All Wings', icon: <Star className="w-4 h-4" /> },
+      { id: 'academic', label: 'Academic', icon: <BookOpen className="w-4 h-4" /> },
+      { id: 'spiritual', label: 'Spiritual', icon: <Heart className="w-4 h-4" /> },
+      { id: 'cultural', label: 'Cultural', icon: <Theater className="w-4 h-4" /> },
+      { id: 'media', label: 'Media', icon: <Video className="w-4 h-4" /> },
+      { id: 'welfare', label: 'Welfare', icon: <HandHeart className="w-4 h-4" /> }
+    ];
+
+    const filteredWings = selectedCategory === 'all'
+      ? subWings
+      : subWings.filter(wing => wing.category === selectedCategory)
 
   const totalPages = Math.ceil(filteredWings.length / itemsPerPage)
   const currentWings = filteredWings.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)

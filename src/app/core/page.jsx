@@ -9,111 +9,132 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 // import { BorderBeam } from "@/components/ui/border-beam" // Removed if not used or to simplify
 
+const STATIC_COMMITTEE_MEMBERS = [
+  {
+    name: "Sayyid Adnan Hydrosi Al-Juvaini",
+    role: "President",
+    category: "leadership",
+    department: "Aqeeda Department",
+    year: "Final Year",
+    image: "/images/core/president.webp",
+    bio: "Leading the union with vision and dedication to student welfare and academic excellence.",
+    location: "Koonammoochi",
+    phone: "+91 99479 01269",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Overall union leadership", "Strategic planning", "Student representation"],
+    color: "from-blue-500 to-indigo-600"
+  },
+  {
+    name: "Abdulla Rashid Eletti",
+    role: "General Secretary",
+    category: "leadership",
+    department: "Lugha Department",
+    year: "Final Year",
+    image: "/images/core/secretary.webp",
+    bio: "Coordinating all union activities and ensuring smooth operations across all departments.",
+    location: "Elettil Vattoli",
+    phone: "+91 79074 13615",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Administrative coordination", "Meeting management", "Documentation"],
+    color: "from-emerald-500 to-teal-600"
+  },
+  {
+    name: "Yahya Qasim Hikami",
+    role: "Treasurer",
+    category: "secretaries",
+    department: "Lugha Department",
+    year: "Final Year",
+    image: "/images/core/treasurer.webp",
+    bio: "Managing financial operations and ensuring transparent budget allocation.",
+    location: "Deshamangalam",
+    phone: "+91 89436 61810",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Financial management", "Budget planning", "Financial reporting"],
+    color: "from-purple-500 to-pink-600"
+  },
+  {
+    name: "Sayyid Muhammed Jalal Shihab",
+    role: "Vice President",
+    category: "leadership",
+    department: "General Department",
+    year: "Final Year",
+    image: "/images/core/vp1.webp",
+    bio: "Supporting leadership initiatives and coordinating academic programs.",
+    location: "Munduparamba",
+    phone: "+91 70348 38316",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Academic coordination", "Program oversight", "Leadership support"],
+    color: "from-orange-500 to-red-600"
+  },
+  {
+    name: "Sayyid Adnan Hydrosi",
+    role: "Vice President",
+    category: "leadership",
+    department: "Aqeeda Department",
+    year: "First Year",
+    image: "/images/core/vp2.webp",
+    bio: "Overseeing cultural activities and student welfare programs.",
+    location: "Koonammoochi",
+    phone: "+91 99479 01269",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Cultural programs", "Student welfare", "Event coordination"],
+    color: "from-cyan-500 to-blue-600"
+  },
+  {
+    name: "Ubaid Nizami Pakkana",
+    role: "Joint Secretary",
+    category: "secretaries",
+    department: "Hadeeth Department",
+    year: "Finel Year",
+    image: "/images/core/joint-sec1.webp",
+    bio: "Managing administrative tasks and supporting secretarial operations.",
+    location: "Pakkana",
+    phone: "+91 75980 24308",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Administrative support", "Documentation", "Meeting coordination"],
+    color: "from-pink-500 to-rose-600"
+  },
+  {
+    name: "Muhammed Nafih Elamkulam",
+    role: "Joint Secretary",
+    category: "secretaries",
+    department: "General Department",
+    year: "First Year",
+    image: "/images/core/joint-sec2.webp",
+    bio: "Assisting in organizational activities and communication management.",
+    location: "Elamkulam",
+    phone: "+91 80783 50280",
+    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    responsibilities: ["Communication management", "Record keeping", "Event assistance"],
+    color: "from-green-500 to-emerald-600"
+  }
+];
+
 const CoreCommitteeSection = () => {
   const [selectedMember, setSelectedMember] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
+  const [committeeMembers, setCommitteeMembers] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Replace with your actual committee members data
-  const committeeMembers = [
-    {
-      name: "Sayyid Hudaib Adil Jifri",
-      role: "President",
-      category: "leadership",
-      department: "General Department",
-      year: "Final Year",
-      image: "/images/core/president.webp",
-      bio: "Leading the union with vision and dedication to student welfare and academic excellence.",
-      location: "Mannarkkad",
-      phone: "+91 62351 63130",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Overall union leadership", "Strategic planning", "Student representation"],
-      color: "from-blue-500 to-indigo-600"
-    },
-    {
-      name: "Abdulla Rashid Eletti",
-      role: "General Secretary",
-      category: "leadership",
-      department: "Lugha Department",
-      year: "Final Year",
-      image: "/images/core/secretary.webp",
-      bio: "Coordinating all union activities and ensuring smooth operations across all departments.",
-      location: "Elettil Vattoli",
-      phone: "+91 79074 13615",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Administrative coordination", "Meeting management", "Documentation"],
-      color: "from-emerald-500 to-teal-600"
-    },
-    {
-      name: "Yahya Qasim Hikami",
-      role: "Treasurer",
-      category: "secretaries",
-      department: "Lugha Department",
-      year: "Final Year",
-      image: "/images/core/treasurer.webp",
-      bio: "Managing financial operations and ensuring transparent budget allocation.",
-      location: "Deshamangalam",
-      phone: "+91 89436 61810",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Financial management", "Budget planning", "Financial reporting"],
-      color: "from-purple-500 to-pink-600"
-    },
-    {
-      name: "Sayyid Muhammed Jalal Shihab",
-      role: "Vice President",
-      category: "leadership",
-      department: "General Department",
-      year: "Final Year",
-      image: "/images/core/vp1.webp",
-      bio: "Supporting leadership initiatives and coordinating academic programs.",
-      location: "Munduparamba",
-      phone: "+91 70348 38316",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Academic coordination", "Program oversight", "Leadership support"],
-      color: "from-orange-500 to-red-600"
-    },
-    {
-      name: "Sayyid Adnan Hydrosi",
-      role: "Vice President",
-      category: "leadership",
-      department: "Aqeeda Department",
-      year: "First Year",
-      image: "/images/core/vp2.webp",
-      bio: "Overseeing cultural activities and student welfare programs.",
-      location: "Koonammoochi",
-      phone: "+91 99479 01269",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Cultural programs", "Student welfare", "Event coordination"],
-      color: "from-cyan-500 to-blue-600"
-    },
-    {
-      name: "Ubaid Nizami Pakkana",
-      role: "Joint Secretary",
-      category: "secretaries",
-      department: "Hadeeth Department",
-      year: "Finel Year",
-      image: "/images/core/joint-sec1.webp",
-      bio: "Managing administrative tasks and supporting secretarial operations.",
-      location: "Pakkana",
-      phone: "+91 75980 24308",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Administrative support", "Documentation", "Meeting coordination"],
-      color: "from-pink-500 to-rose-600"
-    },
-    {
-      name: "Muhammed Nafih Elamkulam",
-      role: "Joint Secretary",
-      category: "secretaries",
-      department: "General Department",
-      year: "First Year",
-      image: "/images/core/joint-sec2.webp",
-      bio: "Assisting in organizational activities and communication management.",
-      location: "Elamkulam",
-      phone: "+91 80783 50280",
-      social: { linkedin: "#", instagram: "#", facebook: "#" },
-      responsibilities: ["Communication management", "Record keeping", "Event assistance"],
-      color: "from-green-500 to-emerald-600"
-    }
-  ]
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        const res = await fetch('/api/core-members');
+        const json = await res.json();
+        if (json.success && json.data && json.data.length > 0) {
+          setCommitteeMembers(json.data);
+        } else {
+          setCommitteeMembers(STATIC_COMMITTEE_MEMBERS);
+        }
+      } catch (err) {
+        console.error("Failed to load core committee members:", err);
+        setCommitteeMembers(STATIC_COMMITTEE_MEMBERS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadMembers();
+  }, []);
 
   const categories = [
     { id: 'all', label: 'All Members', icon: <Users className="w-4 h-4" /> },
@@ -125,6 +146,7 @@ const CoreCommitteeSection = () => {
   const filteredMembers = activeCategory === 'all'
     ? committeeMembers
     : committeeMembers.filter(member => member.category === activeCategory)
+
 
   // -- Components --
 
@@ -288,8 +310,8 @@ const CoreCommitteeSection = () => {
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${activeCategory === category.id
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
                 }`}
             >
               {category.icon}
